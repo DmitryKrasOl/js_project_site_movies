@@ -17,129 +17,113 @@ P.S. Здесь есть несколько вариантов решения з
 
 'use strict';
 
-const movieDB = {
-    movies: [
-        "Логан",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        "Одержимость",
-        "Скотт Пилигрим против...",
-        "Абра-кодабра",
-    ]
-};
+document.addEventListener('DOMContentLoaded', () => {
 
-let carts;
+    const movieDB = {
+        movies: [
+            "Логан",
+            "Лига справедливости",
+            "Ла-ла лэнд",
+            "Одержимость",
+            "Скотт Пилигрим против...",
+            "Абра-кодабра",
+        ]
+    };
 
-console.log(movieDB.movies);
+    const
+        adv = document.querySelectorAll('.promo__adv img'),
+        poster = document.querySelector('.promo__bg'),
+        genre = poster.querySelector('.promo__genre'),
+        movieList = document.querySelector('.promo__interactive-list'),
+        addForm = document.querySelector('form.add'),
+        addInput = addForm.querySelector('.adding__input'),
+        checkbox = addForm.querySelector('[type="checkbox"]');
 
-// My variant
-/* 
-const advirt = document.querySelector('.promo__adv');
-advirt.innerHTML = '';
- */
+    addForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-const adv = document.querySelectorAll('.promo__adv img');
-adv.forEach(item => {
-    item.remove();
-});
+        let newFilm = addInput.value;
+        const favorite = checkbox.checked;
 
+        // Проверяем инпут на пустое поле
+        if (newFilm) {
 
-const deleteElement = (e) => {
-    let parent = e.target.parentElement;
+            if (newFilm.length > 21) {
+                newFilm = `${newFilm.substring(0, 22)}...`
+            }
 
-    delete movieDB.movies[parent.dataset.number];
+            if (favorite) {
+                console.log('Добавляем любимый фильм');
+            }
 
-    // Сортируем
-    movieDB.movies.sort();
+            movieDB.movies.push(newFilm);
+            sortArr(movieDB.movies);
 
-    // Удаляем пустое место
-    movieDB.movies.pop();
-    console.log(movieDB.movies);
-    rewriteList();
-}
+            createMovieList(movieDB.movies, movieList);
 
-// Задание 2 my var
-// const genre = document.querySelector('.promo__genre');
-// genre.textContent = 'драмма';
+        }
 
-const
-    poster = document.querySelector('.promo__bg'),
-    genre = poster.querySelector('.promo__genre');
+        e.target.reset();
 
-genre.textContent = 'драмма';
-
-// Задание 3
-poster.style.backgroundImage = "url('img/bg.jpg')";
-
-// Задание 4
-
-const promoList = document.querySelector('.promo__interactive-list');
-
-let moviesList = movieDB.movies.sort();
-
-function rewriteList() {
-    promoList.innerHTML = '';
-    movieDB.movies.forEach((item, i) => {
-        // item = item.toUpperCase;
-        promoList.innerHTML += `<li data-number="${i}" class="promo__interactive-item">${i + 1} - ${item}<div class="delete"></div></li>`;
     });
 
-    // Навесить событие на все корзины
-    carts = document.querySelectorAll('.delete');
-    carts.forEach(cart => {
-        cart.addEventListener('click', deleteElement);
-    });
-}
-
-rewriteList();
+    const deleteAdv = (arr) => {
+        arr.forEach(item => {
+            item.remove();
+        });
+    };
 
 
+    const deleteElement = (e) => {
+        let parent = e.target.parentElement;
 
-// Выбираем кнопку
-const buttonAdd = document.querySelector('.add__buttton');
+        delete movieDB.movies[parent.dataset.number];
 
-const addingInput = document.querySelector('.adding__input');
+        // Сортируем
+        movieDB.movies.sort();
 
-const stringMovieLength = 21;
-
-let cutStringMovie;
-
-// ф-я добавления фильма в список
-const addMovie = (e) => {
-    e.preventDefault();
-
-    addingInput.value;
-
-    let value = addingInput.value.charAt(0).toUpperCase() + addingInput.value.slice(1);
-
-    // Проверка введенного значения
-    if (value.length > stringMovieLength) {
-
-        cutStringMovie = value.substring(0, stringMovieLength) + '...';
-    } else {
-        cutStringMovie = value.substring(0, stringMovieLength);
+        // Удаляем пустое место
+        movieDB.movies.pop();
+        console.log(movieDB.movies);
+        rewriteList();
     }
 
-    movieDB.movies.push(cutStringMovie);
-    movieDB.movies.sort();
-    // console.log(movieDB);
-    rewriteList();
-}
+    const makeChanges = () => {
+        genre.textContent = 'драмма';
 
-buttonAdd.addEventListener("click", addMovie);
+        poster.style.backgroundImage = "url('img/bg.jpg')";
+    }
 
-// =============== Задание 3 ================================================
-// Выборка всех урн
-carts = document.querySelectorAll('.delete');
+    const sortArr = (arr) => {
+        arr.sort();
+    };
 
-let numberMovie;
+    function createMovieList(films, parent) {
+        parent.innerHTML = '';
 
-//================== Задание 4 ======================================================================================================================================
+        sortArr(films);
 
-const checkBox = document.querySelector('.yes').previousElementSibling;
+        films.forEach((item, i) => {
+            // item = item.toUpperCase;
+            parent.innerHTML += `
+                <li data-number="${i}" class="promo__interactive-item">${i + 1} - ${item}
+                    <div class="delete"></div>
+                </li>
+            `;
+        });
 
-console.log(checkBox);
+        document.querySelectorAll('.delete').forEach((btn, i) => {
+            btn.addEventListener('click', () => {
+                btn.parentElement.remove();
+                movieDB.movies.splice(i, 1);
 
-checkBox.addEventListener("click", (e) => {
-    console.log('Добавляем любимый фильм');
+                createMovieList(films, parent);
+            });
+        });
+    };
+
+    deleteAdv(adv);
+    makeChanges();
+    createMovieList(movieDB.movies, movieList);
 });
+
